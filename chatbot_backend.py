@@ -2,112 +2,63 @@
 import nltk
 from nltk.stem.lancaster import LancasterStemmer
 stemmer = LancasterStemmer()
-
-# things we need for Tensorflow
 import numpy as np
 import tflearn
 import tensorflow as tf
 import random
-
-# import our chat-bot intents file
 import json
-# with open('intents_suicide.json') as json_data:
-#     intents = json.load(json_data)
-#
-# intents_secondary = ""
-with open('intents.json') as json_data:
-    intents = json.load(json_data)
+from flask import Flask
+from flask import request
+from flask import Response
+from flask import jsonify
+from flask_cors import CORS
+app=Flask(__name__)
+CORS(app)
 
-# for i in intents_secondary['intents']:
-#     intents['intents'].append(i)
+con=1
 
-nltk.download('punkt')
-words = []
-classes = []
-documents = []
-ignore_words = ['?']
-# loop through each sentence in our intents patterns
-for intent in intents['intents']:
-    for pattern in intent['patterns']:
-        # tokenize each word in the sentence
-        w = nltk.word_tokenize(pattern)
-        # add to our words list
-        words.extend(w)
-        # add to documents in our corpus
-        documents.append((w, intent['tag']))
-        # add to our classes list
-        if intent['tag'] not in classes:
-            classes.append(intent['tag'])
+@app.route('/userquery',methods=['POST'])
+def query():
+    global con
+    if request.is_json:
+        content = request.get_json()
+        print (content['user_query'])
+        user_input=content['user_query']
+	responsetuple=()
+    	usernp=""
+        if con!=-1:
+            responsetuple = botresponse(user_input,con)
+            print (responsetuple)
+	    for element in responsetuple[1]:
+		usernp+=str(element.encode("utf-8")) 
+		usernp+=";" 
+            con = responsetuple[0]
+          
+        else:
+            con=0
+            print ("Completed Run")
 
-# stem and lower each word and remove duplicates
-words = [stemmer.stem(w.lower()) for w in words if w not in ignore_words]
-words = sorted(list(set(words)))
-
-# remove duplicates
-classes = sorted(list(set(classes)))
-
-print (len(documents), "documents")
-print (len(classes), "classes", classes)
-print (len(words), "unique stemmed words", words)
-
+	dtval=""
+	dtval+=(usernp[:-1]+","+responsetuple[2]+","+str(responsetuple[0]))
+	return Response(dtval,status=200,mimetype='application/json')
+    else:
+        print ("Not in json")
+        return Response(str('{"message":"Input must be json"}'),status=400,mimetype='application/json')
 
 
 
 
 
-# create our training data
-training = []
-output = []
-# create an empty array for our output
-output_empty = [0] * len(classes)
-
-# training set, bag of words for each sentence
-for doc in documents:
-    # initialize our bag of words
-    bag = []
-    # list of tokenized words for the pattern
-    pattern_words = doc[0]
-    # stem each word
-    pattern_words = [stemmer.stem(word.lower()) for word in pattern_words]
-    # create our bag of words array
-    for w in words:
-        bag.append(1) if w in pattern_words else bag.append(0)
-
-    # output is a '0' for each tag and '1' for current tag
-    output_row = list(output_empty)
-    output_row[classes.index(doc[1])] = 1
-
-    training.append([bag, output_row])
-
-# shuffle our features and turn into np.array
-random.shuffle(training)
-training = np.array(training)
-
-# create train and test lists
-train_x = list(training[:,0])
-train_y = list(training[:,1])
-
-
-
-
-
-
-
-# reset underlying graph data
-tf.reset_default_graph()
-# Build neural network
-net = tflearn.input_data(shape=[None, len(train_x[0])])
-net = tflearn.fully_connected(net, 8)
-net = tflearn.fully_connected(net, 8)
-net = tflearn.fully_connected(net, len(train_y[0]), activation='softmax')
-net = tflearn.regression(net)
-
-# Define model and setup tensorboard
-model = tflearn.DNN(net, tensorboard_dir='tflearn_logs')
-# Start training (apply gradient descent algorithm)
-model.fit(train_x, train_y, n_epoch=1000, batch_size=8, show_metric=True)
-model.save('model.tflearn')
-
+#user_input = ""
+#while "done" not in user_input.lower():
+#    user_input = ""
+#    con = 0
+#    print("\n\nHello!")
+#    while(con != -1):
+#        user_input = input("")
+#        if "done" in user_input.lower():
+#            break
+#        con = response(user_input,con)
 
 
 def clean_up_sentence(sentence):
@@ -132,27 +83,6 @@ def bow(sentence, words, show_details=False):
 
     return(np.array(bag))
 
-
-p = bow("is your shop open today?", words)
-print (p)
-print (classes)
-
-# print(model.predict([p]))
-#
-#
-# # save all of our data structures
-# import pickle
-# pickle.dump( {'words':words, 'classes':classes, 'train_x':train_x, 'train_y':train_y}, open( "training_data", "wb" ) )
-
-
-# load our saved model
-model.load('./model.tflearn')
-
-
-# create a data structure to hold user context
-context = {}
-
-# ERROR_THRESHOLD = 0.15
 def classify(sentence,ERROR_THRESHOLD):
     # generate probabilities from the model
 
@@ -168,7 +98,8 @@ def classify(sentence,ERROR_THRESHOLD):
     # return tuple of intent and probability
     return return_list
 
-def response(sentence,con):
+def botresponse(sentence,con):
+    botresponsemsg = ""
     results = ()
     ERROR_THRESHOLD = 0.15
     while not len(results) :
@@ -180,22 +111,146 @@ def response(sentence,con):
         # loop as long as there are matches to process
         for result in results:
             for i in intents['intents']:
-                print("result[0] = ", result[0])
+                # print("result[0] = ", result[0])
                 if i['tag'] == result[0]:
-                    print(i)
+                    # print(i)
                     if i['context_filter'] == con:
-                        print(random.choice(i['responses']))
+                        botresponsemsg = random.choice(i['responses'])
                         con = int(i['context_set'])
-                        return con;
+                        nextpatterns = []
+                        for j in intents['intents']:
+                            if int(j['context_filter']) == int(i['context_set']):
+                                for p in j['patterns']:
+                                    nextpatterns.append(p)
+                        return ((con, nextpatterns, botresponsemsg))
         for result in results:
             for i in intents['intents']:
                 if i['tag'] == result[0]:
-                    print(random.choice(i['responses']))
+                    botresponsemsg = random.choice(i['responses'])
                     con = int(i['context_set'])
-                    print("con = ", con)
-                    return con;
+                    # print("con = ", con)
+                    nextpatterns = []
+                    for j in intents['intents']:
+                        if int(j['context_filter']) == int(i['context_set']):
+                            for p in j['patterns']:
+                                nextpatterns.append(p)
+                    return ((con, nextpatterns, botresponsemsg))
 
-    return con;
+if __name__=='__main__':
+
+    with open('intents.json') as json_data:
+        intents = json.load(json_data)
+
+    # for i in intents_secondary['intents']:
+    #     intents['intents'].append(i)
+
+    nltk.download('punkt')
+    words = []
+    classes = []
+    documents = []
+    ignore_words = ['?']
+    # loop through each sentence in our intents patterns
+    for intent in intents['intents']:
+        for pattern in intent['patterns']:
+            # tokenize each word in the sentence
+            w = nltk.word_tokenize(pattern)
+            # add to our words list
+            words.extend(w)
+            # add to documents in our corpus
+            documents.append((w, intent['tag']))
+            # add to our classes list
+            if intent['tag'] not in classes:
+                classes.append(intent['tag'])
+
+    # stem and lower each word and remove duplicates
+    words = [stemmer.stem(w.lower()) for w in words if w not in ignore_words]
+    words = sorted(list(set(words)))
+
+    # remove duplicates
+    classes = sorted(list(set(classes)))
+
+    print (len(documents), "documents")
+    print (len(classes), "classes", classes)
+    print (len(words), "unique stemmed words", words)
+
+
+
+
+
+
+    # create our training data
+    training = []
+    output = []
+    # create an empty array for our output
+    output_empty = [0] * len(classes)
+
+    # training set, bag of words for each sentence
+    for doc in documents:
+        # initialize our bag of words
+        bag = []
+        # list of tokenized words for the pattern
+        pattern_words = doc[0]
+        # stem each word
+        pattern_words = [stemmer.stem(word.lower()) for word in pattern_words]
+        # create our bag of words array
+        for w in words:
+            bag.append(1) if w in pattern_words else bag.append(0)
+
+        # output is a '0' for each tag and '1' for current tag
+        output_row = list(output_empty)
+        output_row[classes.index(doc[1])] = 1
+
+        training.append([bag, output_row])
+
+    # shuffle our features and turn into np.array
+    random.shuffle(training)
+    training = np.array(training)
+
+    # create train and test lists
+    train_x = list(training[:,0])
+    train_y = list(training[:,1])
+
+
+
+
+
+
+
+    # reset underlying graph data
+    tf.reset_default_graph()
+    # Build neural network
+    net = tflearn.input_data(shape=[None, len(train_x[0])])
+    net = tflearn.fully_connected(net, 8)
+    net = tflearn.fully_connected(net, 8)
+    net = tflearn.fully_connected(net, len(train_y[0]), activation='softmax')
+    net = tflearn.regression(net)
+
+    # Define model and setup tensorboard
+    model = tflearn.DNN(net, tensorboard_dir='tflearn_logs')
+    # Start training (apply gradient descent algorithm)
+    model.fit(train_x, train_y, n_epoch=1000, batch_size=8, show_metric=True)
+    model.save('model.tflearn')
+    model.load('./model.tflearn')
+  
+    app.run(debug=True,host='0.0.0.0')
+
+
+
+
+
+# print(model.predict([p]))
+#
+#
+# # save all of our data structures
+# import pickle
+# pickle.dump( {'words':words, 'classes':classes, 'train_x':train_x, 'train_y':train_y}, open( "training_data", "wb" ) )
+
+
+# load our saved model
+
+
+# ERROR_THRESHOLD = 0.15
+
 
 # classify('is your shop open today?')
 #
@@ -216,18 +271,8 @@ def response(sentence,con):
 # response('today')
 # classify('today')
 # response("thanks, your great")
-user_input = ""
-while "done" not in user_input.lower():
-    user_input = ""
-    con = 0
-    print("\n\nHello!")
-    while(con != -1):
-        user_input = input("")
-        if "done" in user_input.lower():
-            break
-        con = response(user_input,con)
+
 
 # Continue till a certain context is reached
 # All the ending context can be same
 # We need to keep on calling the classify function till we don't have a correct response
-#
