@@ -47,20 +47,6 @@ def query():
 
 
 
-
-
-#user_input = ""
-#while "done" not in user_input.lower():
-#    user_input = ""
-#    con = 0
-#    print("\n\nHello!")
-#    while(con != -1):
-#        user_input = input("")
-#        if "done" in user_input.lower():
-#            break
-#        con = response(user_input,con)
-
-
 def clean_up_sentence(sentence):
     # tokenize the pattern
     sentence_words = nltk.word_tokenize(sentence)
@@ -101,19 +87,13 @@ def classify(sentence,ERROR_THRESHOLD):
 def botresponse(sentence,con):
     botresponsemsg = ""
     results = ()
-    ERROR_THRESHOLD = 0.15
-    while not len(results) :
+    ERROR_THRESHOLD = 0.25
+    while True:
         results = classify(sentence,ERROR_THRESHOLD)
-        ERROR_THRESHOLD = ERROR_THRESHOLD - 0.02
-    # print("results list : ", results)
-    # if we have a classification then find the matching intent tag
-    if results:
-        # loop as long as there are matches to process
+        ERROR_THRESHOLD = ERROR_THRESHOLD - 0.1
         for result in results:
             for i in intents['intents']:
-                # print("result[0] = ", result[0])
                 if i['tag'] == result[0]:
-                    # print(i)
                     if i['context_filter'] == con:
                         botresponsemsg = random.choice(i['responses'])
                         con = int(i['context_set'])
@@ -123,156 +103,75 @@ def botresponse(sentence,con):
                                 for p in j['patterns']:
                                     nextpatterns.append(p)
                         return ((con, nextpatterns, botresponsemsg))
-        for result in results:
-            for i in intents['intents']:
-                if i['tag'] == result[0]:
-                    botresponsemsg = random.choice(i['responses'])
-                    con = int(i['context_set'])
-                    # print("con = ", con)
-                    nextpatterns = []
-                    for j in intents['intents']:
-                        if int(j['context_filter']) == int(i['context_set']):
-                            for p in j['patterns']:
-                                nextpatterns.append(p)
-                    return ((con, nextpatterns, botresponsemsg))
+        if ERROR_THRESHOLD != 0:
+            continue
+    for result in results:
+        for i in intents['intents']:
+            if i['tag'] == result[0]:
+                botresponsemsg = random.choice(i['responses'])
+                con = int(i['context_set'])
+                nextpatterns = []
+                for j in intents['intents']:
+                    if int(j['context_filter']) == int(i['context_set']):
+                        for p in j['patterns']:
+                            nextpatterns.append(p)
+                return ((con, nextpatterns, botresponsemsg))
 
 if __name__=='__main__':
 
     with open('intents.json') as json_data:
         intents = json.load(json_data)
 
-    # for i in intents_secondary['intents']:
-    #     intents['intents'].append(i)
-
     nltk.download('punkt')
     words = []
     classes = []
     documents = []
     ignore_words = ['?']
-    # loop through each sentence in our intents patterns
     for intent in intents['intents']:
         for pattern in intent['patterns']:
-            # tokenize each word in the sentence
             w = nltk.word_tokenize(pattern)
-            # add to our words list
             words.extend(w)
-            # add to documents in our corpus
             documents.append((w, intent['tag']))
-            # add to our classes list
             if intent['tag'] not in classes:
                 classes.append(intent['tag'])
 
-    # stem and lower each word and remove duplicates
     words = [stemmer.stem(w.lower()) for w in words if w not in ignore_words]
     words = sorted(list(set(words)))
 
-    # remove duplicates
     classes = sorted(list(set(classes)))
 
-    print (len(documents), "documents")
-    print (len(classes), "classes", classes)
-    print (len(words), "unique stemmed words", words)
-
-
-
-
-
-
-    # create our training data
     training = []
     output = []
-    # create an empty array for our output
     output_empty = [0] * len(classes)
 
-    # training set, bag of words for each sentence
     for doc in documents:
-        # initialize our bag of words
         bag = []
-        # list of tokenized words for the pattern
         pattern_words = doc[0]
-        # stem each word
         pattern_words = [stemmer.stem(word.lower()) for word in pattern_words]
-        # create our bag of words array
         for w in words:
             bag.append(1) if w in pattern_words else bag.append(0)
 
-        # output is a '0' for each tag and '1' for current tag
         output_row = list(output_empty)
         output_row[classes.index(doc[1])] = 1
 
         training.append([bag, output_row])
 
-    # shuffle our features and turn into np.array
     random.shuffle(training)
     training = np.array(training)
 
-    # create train and test lists
     train_x = list(training[:,0])
     train_y = list(training[:,1])
 
-
-
-
-
-
-
-    # reset underlying graph data
     tf.reset_default_graph()
-    # Build neural network
     net = tflearn.input_data(shape=[None, len(train_x[0])])
     net = tflearn.fully_connected(net, 8)
     net = tflearn.fully_connected(net, 8)
     net = tflearn.fully_connected(net, len(train_y[0]), activation='softmax')
     net = tflearn.regression(net)
 
-    # Define model and setup tensorboard
     model = tflearn.DNN(net, tensorboard_dir='tflearn_logs')
-    # Start training (apply gradient descent algorithm)
     model.fit(train_x, train_y, n_epoch=1000, batch_size=8, show_metric=True)
     model.save('model.tflearn')
     model.load('./model.tflearn')
   
     app.run(debug=True,host='0.0.0.0')
-
-
-
-
-
-# print(model.predict([p]))
-#
-#
-# # save all of our data structures
-# import pickle
-# pickle.dump( {'words':words, 'classes':classes, 'train_x':train_x, 'train_y':train_y}, open( "training_data", "wb" ) )
-
-
-# load our saved model
-
-
-# ERROR_THRESHOLD = 0.15
-
-
-# classify('is your shop open today?')
-#
-# response('is your shop open today?')
-# response('do you take cash?')
-#
-# response('what kind of mopeds do you rent?')
-# response('Goodbye, see you later')
-# context
-# response('we want to rent a moped')
-# context
-# response('today')
-#
-# classify('today')
-#
-# # clear context
-# response("Hi there!", show_details=True)
-# response('today')
-# classify('today')
-# response("thanks, your great")
-
-
-# Continue till a certain context is reached
-# All the ending context can be same
-# We need to keep on calling the classify function till we don't have a correct response
