@@ -37,7 +37,7 @@
         },
         {"tag": "jobstressno",
          "patterns": ["no", "nah", "na", "nope"],
-         "responses": ["I think you are having a panic attack now. Please try to take deep breaths and follow my lead."],//Play a meditation guide
+         "responses": ["I think you are having a panic attack now. Please try to take deep breaths and follow my lead."],
          "context_filter": 20,
           "context_set": -1
         },
@@ -60,14 +60,6 @@
           "context_set": -1
         },
 
-
-
-
-
-
-
-
-
         {"tag": "stress",
          "patterns": ["stress"],
          "responses": ["Since how long have you been feeling stressed? The recent past, or since a long time?"],
@@ -80,8 +72,6 @@
          "context_filter": 3,
           "context_set": 8
         },
-
-
 
         {"tag": "stresslong",
          "patterns": ["since a long time", "since forever","always"],
@@ -113,14 +103,6 @@
          "context_filter": 19,
           "context_set": -1
         },
-
-
-
-
-
-
-
-
 
         {"tag": "depress",
          "patterns": ["depress", "depression"],
@@ -240,17 +222,6 @@
           "context_set": -1
         },
 
-
-
-
-
-
-
-
-
-
-
-
         {"tag": "unhappy",
          "patterns": ["unhappy", "sad", "down"],
          "responses": ["In the past month, have you felt that you are all alone?"],
@@ -305,16 +276,6 @@
          "context_filter": 13,
           "context_set": 16
         },
-
-
-
-
-
-
-
-
-
-
 
         {"tag": "tempno",
          "patterns": ["no", "nah", "na"],
