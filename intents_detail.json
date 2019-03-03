@@ -1,7 +1,7 @@
 {"intents": [
         {"tag": "greeting",
-         "patterns": ["I am not feeling so well"],
-         "responses": ["So sorry to hear that. What best describes how you feel - unhappy, depressed, stressed, anxious"],
+         "patterns": ["hi", "hello", "how are you", "how you doing"],
+         "responses": ["What best describes how you feel - unhappy, depressed, stressed, anxious"],
          "context_set": 1,
           "context_filter": 0
         },
@@ -23,7 +23,7 @@
          "context_filter": 6,
           "context_set": 20
         },
-        {"tag": "trembleyes",
+        {"tag": "socialisolation",
          "patterns": ["in public", "sometimes", "mostly in public", "can say"],
          "responses": ["I feel like you are suffering from social isolation. Please consult a guidance counsellor or lifestyle coach to get help."],
          "context_filter": 6,
@@ -37,7 +37,7 @@
         },
         {"tag": "jobstressno",
          "patterns": ["no", "nah", "na", "nope"],
-         "responses": ["I think you are having a panic attack now. Please try to take deep breaths and follow my lead."],
+         "responses": ["It seems you are suffering from acute anxiety/panic disorder. Please take deep breaths to calm down. And please contact 1800-855-855 for professional help."],
          "context_filter": 20,
           "context_set": -1
         },
@@ -49,7 +49,7 @@
         },
         {"tag": "dizzyyes",
          "patterns": ["yes", "yeah", "yep", "maybe", "sometimes", "i dont know", "idk"],
-         "responses": ["Are you detatching yourself from other people, are you trying to be alone?"],
+         "responses": ["Are you detaching yourself from other people, are you trying to be alone?"],
          "context_filter": 7,
           "context_set": 19
         },
@@ -60,7 +60,7 @@
           "context_set": -1
         },
 
-        {"tag": "stress",
+        {"tag": "stressquestion",
          "patterns": ["stress"],
          "responses": ["Since how long have you been feeling stressed? The recent past, or since a long time?"],
          "context_filter": 1,
@@ -72,7 +72,30 @@
          "context_filter": 3,
           "context_set": 8
         },
-
+        {"tag": "deadlineyes",
+         "patterns": ["yes", "yeah", "yep", "maybe", "sometimes", "i dont know", "idk"],
+         "responses": ["I would suggest that you take a short break from your routine, or meditate."],
+         "context_filter": 8,
+          "context_set": -1
+        },
+        {"tag": "deadlineno",
+         "patterns": ["no", "nah", "na", "nope"],
+         "responses": ["Did you experience a disturbing or traumatic experience in your family or close friend circle?"],
+         "context_filter": 8,
+          "context_set": 16
+        },
+        {"tag": "traumaticyes",
+         "patterns": ["yes", "yeah", "yep", "maybe", "sometimes", "i dont know", "idk"],
+         "responses": ["I would suggest that you consult a guidance counsellor who can help you deal with your experience."],
+         "context_filter": 16,
+          "context_set": -1
+        },
+        {"tag": "traumaticno",
+         "patterns": ["no", "nah", "na", "nope"],
+         "responses": ["I would suggest that you take a short break from your routine, or meditate."],
+         "context_filter": 16,
+          "context_set": -1
+        },
         {"tag": "stresslong",
          "patterns": ["since a long time", "since forever","always"],
          "responses": ["Do you feel dazed, or a numbness or tingling sensation?"],
@@ -81,7 +104,7 @@
         },
         {"tag": "dazedyes",
          "patterns": ["yes", "yeah", "yep", "maybe", "sometimes", "i dont know", "idk"],
-         "responses": ["Are you detatching yourself from other people, are you trying to be alone?"],
+         "responses": ["Are you detaching yourself from other people, are you trying to be alone?"],
          "context_filter": 9,
           "context_set": 19
         },
@@ -104,7 +127,7 @@
           "context_set": -1
         },
 
-        {"tag": "depress",
+        {"tag": "depressselection",
          "patterns": ["depress", "depression"],
          "responses": ["Do you feel hopeful about the future?"],
          "context_filter": 1,
@@ -124,14 +147,14 @@
         },
         {"tag": "lostinterestyes",
          "patterns": ["yes", "yeah", "yep", "maybe", "sometimes", "i dont know", "idk"],
-         "responses": ["Do you feel that you are a success or a failure?"],
+         "responses": ["Do you feel that you are a success?"],
          "context_filter": 11,
           "context_set": 24
         },
 
         {"tag": "lostinterestno",
          "patterns": ["no", "nah", "na", "nope"],
-         "responses": ["Do you feel aggitted or distracted?"],
+         "responses": ["Do you feel agitated or distracted?"],
          "context_filter": 11,
           "context_set": 25
         },
@@ -143,32 +166,32 @@
         },
         {"tag": "aggittedno",
          "patterns": ["no", "nah", "na", "nope"],
-         "responses": ["I think that you should try to take a break and then come back. I will play some music for you till then"],
+         "responses": ["I think that you should try to take a relaxing break from your routine."],
          "context_filter": 25,
           "context_set": -1
         },
-        {"tag": "success",
-         "patterns": ["success","successful"],
+        {"tag": "successfeel",
+         "patterns": ["yes", "yeah", "yep", "maybe", "sometimes", "i dont know", "idk"],
          "responses": ["I think that you should try to take a break and then come back. I will play some music for you till then"],
          "context_filter": 24,
           "context_set": -1
         },
-        {"tag": "failure",
-         "patterns": ["failure","I dont want to talk","next"],
+        {"tag": "failurefeel",
+         "patterns": ["no", "nah", "na", "nope"],
          "responses": ["Have you thought about killing yourself in recent days or past month?"],
-         "context_filter": 25,
+         "context_filter": 24,
           "context_set": 26
         },
 
         {"tag": "killyes",
          "patterns": ["yes", "yeah", "yep", "maybe", "sometimes", "i dont know", "idk"],
-         "responses": ["Please call this number now 1-800-273-8255"],
+         "responses": ["Please call this suicide helpline number now 1-800-273-8255"],
          "context_filter": 26,
           "context_set": -1
         },        
         {"tag": "killno",
          "patterns": ["no", "nah", "na", "nope"],
-         "responses": ["Please talk to a medical professional about this. I will send you the list of best psychiatrist near you."],
+         "responses": ["Please talk to a medical professional about this. I will send you a list of the best psychiatrists near you."],
          "context_filter": 26,
           "context_set": -1
         },
@@ -187,13 +210,13 @@
         },
         {"tag": "experienceyes",
          "patterns": ["yes", "yeah", "yep", "maybe", "sometimes", "i dont know", "idk"],
-         "responses": ["Good, this will help you. You should try to talk to people close to you. Also please make sure that if this continues you talk to a life coach"],
+         "responses": ["That's good. Communicating and sharing problems lessens unhappiness. Please speak with a guidance counsellor if your negative feelings persist."],
          "context_filter": 21,
           "context_set": -1
         },        
         {"tag": "experienceno",
          "patterns": ["no", "nah", "na", "nope"],
-         "responses": ["I suggest that you talk to me about this, or find someone you feel comfirtable talking to."],
+         "responses": ["I suggest that you talk to me about this, or find someone you feel comfortable talking to."],
          "context_filter": 21,
           "context_set": -1
         },
@@ -211,18 +234,18 @@
         },
         {"tag": "sleeplessyes",
          "patterns": ["yes", "yeah", "yep", "maybe", "sometimes", "i dont know", "idk"],
-         "responses": ["The problem seems to be a bit serious I suggest that you talk to a lifestyle coach or a medical professional about this."],
+         "responses": ["You seem to be suffering from insomnia. I suggest that you talk to a lifestyle coach or a medical professional."],
          "context_filter": 23,
           "context_set": -1
         },
         {"tag": "sleeplessno",
          "patterns": ["no", "nah", "na", "nope"],
-         "responses": ["I suggest that you start a socual activity nearby. That will help you feel better."],
+         "responses": ["I suggest that you start a social activity nearby. That will help you feel better."],
          "context_filter": 23,
           "context_set": -1
         },
 
-        {"tag": "unhappy",
+        {"tag": "unhappyselection",
          "patterns": ["unhappy", "sad", "down"],
          "responses": ["In the past month, have you felt that you are all alone?"],
          "context_filter": 1,
@@ -242,69 +265,50 @@
         },
         {"tag": "spendtimeno",
          "patterns": ["no", "nah", "na", "nope"],
-         "responses": ["You seem to show symptoms of social isolation and loneliness. Please consult a guidance counsellor or lifestyle coach to get help."],
+         "responses": ["I suggest that you meet your family and close friends for relaxation and as a break from routine."],
          "context_filter": 12,
-          "context_set": 14
+          "context_set": -1
         },
-        {"tag": "lonelyno",
-         "patterns": ["no", "nah", "na", "nope"],
-         "responses": ["Did you meet any of your friends or family members recently?"],
-         "context_filter": 5,
-          "context_set": 13
-        },
-        {"tag": "meetyes",
+         {"tag": "meetyes",
          "patterns": ["yes", "yeah", "yep", "maybe", "sometimes", "i dont know", "idk"],
          "responses": ["That's great! If I may, please do the things that make you happy. May I play some music for you?"],
          "context_filter": 13,
-          "context_set": 15
+          "context_set": -1
         },
-        {"tag": "musicyes",
-         "patterns": ["yes", "yeah", "yep", "maybe", "sometimes", "i dont know", "idk"],
-         "responses": ["Enjoy!"],
-         "context_filter": 15,
-          "context_set": 17
-        },
-        {"tag": "musicno",
-         "patterns": ["no", "nah", "na", "nope", "thats alright", "thats ok"],
-         "responses": ["Alright! Have a nice day."],
-         "context_filter": 15,
-          "context_set": 18
-        },
-        {"tag": "meetno",
+        {"tag": "spendrecentlyno",
          "patterns": ["no", "nah", "na", "nope"],
-         "responses": ["You seem to show symptoms of social isolation and loneliness. Please consult a guidance counsellor or lifestyle coach to get help."],
+         "responses": ["I suggest that you meet your family and close friends for relaxation and as a break from routine."],
          "context_filter": 13,
-          "context_set": 16
+          "context_set": -1
         },
-
         {"tag": "tempno",
          "patterns": ["no", "nah", "na"],
          "responses": ["Are you facing any problems with your family or close friends?"],
          "context_filter": 5,
-          "context_set": 4
+          "context_set": 27
         },
           {"tag": "familyyes",
          "patterns": ["yes", "yeah", "yep", "maybe", "sometimes", "i dont know", "idk"],
-         "responses": ["Are you feeling like killing yourself?"],
-         "context_filter": 4,
-          "context_set": 6
+         "responses": ["Have you felt like killing yourself?"],
+         "context_filter": 27,
+          "context_set": 28
         },
           {"tag": "familyno",
          "patterns": ["no", "nah", "na"],
-         "responses": ["Relax play music"],
-         "context_filter": 4,
+         "responses": ["I suggest you speak with a guidance counsellor regarding the problems with your family."],
+         "context_filter": 27,
           "context_set": -1
         },
           {"tag": "suicideyes",
          "patterns": ["yes", "yeah", "yep", "maybe", "sometimes", "i dont know", "idk"],
-         "responses": ["Please call this number now 1-800-273-8255"],
-         "context_filter": 6,
+         "responses": ["Please call this suicide helpline number now 1-800-273-8255"],
+         "context_filter": 28,
           "context_set": -1
         },
           {"tag": "suicideno",
          "patterns": ["no", "nah", "na","never"],
          "responses": ["Please contact a psychiatrist. Should I locate some for you?"],
-         "context_filter": 6,
+         "context_filter": 28,
           "context_set": -1
         }
    ]
