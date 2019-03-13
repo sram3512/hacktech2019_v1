@@ -1,0 +1,75 @@
+
+'use strict';
+
+const http = require('http');
+const functions = require('firebase-functions');
+const {WebhookClient} = require('dialogflow-fulfillment');
+const host = 'http://35.197.122.199:5000';
+
+exports.dialogflowFirebaseFulfillment = functions.https.onRequest((req, res) => {
+  
+  //const agent = new WebhookClient({ req, res });
+  //console.log(agent.intent);
+  //console.log(agent.query);
+  
+  let query = req.body.queryResult.parameters['user_input'];
+  console.log(query);
+  // Get the city and date from the request
+  //let city = req.body.queryResult.parameters['geo-city']; // city is a required param
+
+  // Call the weather API
+  callWeatherApi(query).then((output) => {
+    console.log(output);
+    res.json({ 'fulfillmentText': output }); // Return the results of the weather API to Dialogflow
+  }).catch(() => {
+    res.json({ 'fulfillmentText': `Out of office` });
+  });
+
+function callWeatherApi (query) {
+  return new Promise((resolve, reject) => {
+    // Create the path for the HTTP request to get the weather
+    let path = '/userquery';
+    console.log('API Request: ' + host + path);
+	
+    var custheader={"Content-Type":"application/json"};
+  var srvour={"user_query":query};
+    // Make the HTTP request to get the weather
+    
+    var http = require("http");
+    
+var options = {
+  host: '35.197.122.199',
+  port: 5000,
+  path: '/userquery',
+  method: 'POST',
+  headers: {
+      'Content-Type': 'application/json',
+  }
+};
+    
+    
+var req = http.request(options, function(res) {
+  console.log('Status: ' + res.statusCode);
+  console.log('Headers: ' + JSON.stringify(res.headers));
+  res.setEncoding('utf8');
+  res.on('data', function (body) {
+    console.log('Body: ' + body);
+     // Resolve the promise with the output text
+    	var output=body.split(',')[1];
+        console.log(output);
+        resolve(output);
+  });
+});
+req.on('error', function(e) {
+  console.log('problem with request: ' + e.message);
+});
+//var input=;
+console.log("yes");
+// write data to request body
+req.write('{"user_query":"'+query+'"}');
+req.end();
+    
+  
+ });
+}
+});
